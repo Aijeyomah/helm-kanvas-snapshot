@@ -133,7 +133,7 @@ func ExtractNameFromURI(uri string) string {
 
 func handleError(err error) {
 	if err != nil {
-		LogError.Error(err)
+		Log.Error(err)
 		os.Exit(1)
 	}
 }
@@ -148,13 +148,13 @@ func CreateMesheryDesign(uri, name, email string) (string, error) {
 
 	payloadBytes, err := json.Marshal(payload)
 	if err != nil {
-		LogError.Error(err)
+		Log.Error(err)
 		os.Exit(1)
 	}
 	sourceType := "Helm Chart"
 	req, err := http.NewRequest("POST", fmt.Sprintf("%s/api/pattern/%s", MesheryApiBaseUrl, sourceType), bytes.NewBuffer(payloadBytes))
 	if err != nil {
-		LogError.Error(err)
+		Log.Error(err)
 		os.Exit(1)
 	}
 
@@ -173,7 +173,7 @@ func CreateMesheryDesign(uri, name, email string) (string, error) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		io.ReadAll(resp.Body)
+		err = errors.ErrCreatingMesheryDesign(fmt.Errorf("failed to import helm chart \"%s\"", chartURI))
 		return "", err
 	}
 	// Expecting a JSON array in the response
@@ -189,7 +189,7 @@ func CreateMesheryDesign(uri, name, email string) (string, error) {
 		}
 	}
 
-	return "", errors.ErrHTTPPostRequest(err)
+	return "", errors.ErrCreatingMesheryDesign(err)
 }
 
 func GenerateSnapshot(designID, chartURI, email, assetLocation string) error {
@@ -249,11 +249,20 @@ func main() {
 	generateKanvasSnapshotCmd.Flags().StringVarP(&designName, "name", "n", "", "Optional name for the Meshery design")
 	generateKanvasSnapshotCmd.Flags().StringVarP(&email, "email", "e", "", "Email to send the snapshotted design")
 
-	generateKanvasSnapshotCmd.MarkFlagRequired("file")
-	generateKanvasSnapshotCmd.MarkFlagRequired("email")
+	err := generateKanvasSnapshotCmd.MarkFlagRequired("url")
+	if err != nil {
+		Log.Error(errors.ErrRequiredFieldNotProvided(err, "url"))
+		return
+	}
+
+	err = generateKanvasSnapshotCmd.MarkFlagRequired("email")
+	if err != nil {
+		Log.Error(errors.ErrRequiredFieldNotProvided(err, "email"))
+		return
+	}
 
 	if err := generateKanvasSnapshotCmd.Execute(); err != nil {
-		LogError.Error(err)
+		Log.Error(errors.ErrGeneratingSnapshot(err))
 		os.Exit(1)
 	}
 
