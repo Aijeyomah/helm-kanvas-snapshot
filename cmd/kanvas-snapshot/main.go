@@ -30,7 +30,6 @@ var (
 	MesheryCloudApiBaseUrl string
 	SystemID               string
 	Log                    logger.Handler
-	LogError               logger.Handler
 )
 
 var (
@@ -246,9 +245,9 @@ func GenerateSnapshot(designID, chartURI, email, assetLocation string) error {
 
 func main() {
 
-	generateKanvasSnapshotCmd.Flags().StringVarP(&chartURI, "file", "f", "", "URI to Helm chart (required)")
-	generateKanvasSnapshotCmd.Flags().StringVarP(&designName, "design-name", "l", "", "Optional name for the Meshery design")
-	generateKanvasSnapshotCmd.Flags().StringVarP(&email, "email", "e", "", "Optional email to associate with the Meshery design")
+	generateKanvasSnapshotCmd.Flags().StringVarP(&chartURI, "url", "f", "", "URI to Helm chart (required)")
+	generateKanvasSnapshotCmd.Flags().StringVarP(&designName, "name", "n", "", "Optional name for the Meshery design")
+	generateKanvasSnapshotCmd.Flags().StringVarP(&email, "email", "e", "", "Email to send the snapshotted design")
 
 	generateKanvasSnapshotCmd.MarkFlagRequired("file")
 	generateKanvasSnapshotCmd.MarkFlagRequired("email")
