@@ -5,11 +5,12 @@ import (
 )
 
 var (
-	ErrInvalidChartURICode       = "kanvas-snapshot-900"
-	ErrCreatingMesheryDesignCode = "kanvas-snapshot-901"
-	ErrGeneratingSnapshotCode    = "kanvas-snapshot-902"
-	ErrHTTPPostRequestCode       = "kanvas-snapshot-903"
-	ErrDecodingAPICode           = "kanvas-snapshot-905"
+	ErrInvalidChartURICode          = "kanvas-snapshot-900"
+	ErrCreatingMesheryDesignCode    = "kanvas-snapshot-901"
+	ErrGeneratingSnapshotCode       = "kanvas-snapshot-902"
+	ErrHTTPPostRequestCode          = "kanvas-snapshot-903"
+	ErrDecodingAPICode              = "kanvas-snapshot-905"
+	ErrRequiredFieldNotProvidedCode = ""
 )
 
 func ErrInvalidChartURI(err error) error {
@@ -54,5 +55,14 @@ func ErrDecodingAPI(err error) error {
 		[]string{err.Error()},
 		[]string{"API response could not be decoded into the expected format."},
 		[]string{"Ensure the Meshery API response format is correct."},
+	)
+}
+
+func ErrRequiredFieldNotProvided(err error, field string) error {
+	return errors.New(ErrRequiredFieldNotProvidedCode, errors.Alert,
+		[]string{"All required flags are not passed."},
+		[]string{err.Error()},
+		[]string{"Required flag \"%s\" is not passed."},
+		[]string{"Ensure value for flag \"%s\" is correctly provided."},
 	)
 }
